@@ -1,0 +1,719 @@
+<html>
+
+<head>
+  <title>GB Generator</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row" style="margin-top: 15px; margin-bottom: 50px">
+      <div class="col-lg-12 text-center">
+        <!-- <br><img src="download.png" style="height:80px;"/>  -->
+        <h4 style="font-weight: bold">BOOKS Section</h4>
+        <h2 style="font-weight: bold">RAJKOT, WR</h2>
+      </div>
+    </div>
+    <br />
+    <div class="row d-flex justify-content-center">
+      <div class="col-lg-6 ">
+        <h2 class="text-center">Upload GB Data</h2>
+        <form id="uploadRevenueReportForm">
+          <div class="mb-3">
+            <label for="uploadRevenueReportFile" class="form-label" aria-describedby="uploadRevenueReportFile">Select
+              Revenue Report</label>
+            <div class="input-group">
+              <input class="form-control" type="file" id="uploadRevenueReportFile" />
+              <span class="input-group-text" id="basic-addon1" onclick="handleRevenueReportUpload();">Upload</span>
+            </div>
+            <div id="uploadRevenueReportFile" class="form-text">
+              Please select .html file
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="uploadRevenueScheduleFile" class="form-label"
+              aria-describedby="uploadRevenueScheduleFile">Select Revenue Schedule</label>
+            <div class="input-group">
+              <input class="form-control" type="file" id="uploadRevenueScheduleFile" />
+              <span class="input-group-text" id="basic-addon1" onclick="handleRevenueScheduleUpload();">Upload</span>
+            </div>
+            <div id="uploadRevenueScheduleFile" class="form-text">
+              Please select .html file
+            </div>
+          </div>
+          <p id="msg1">&nbsp;</p>
+          <div id="file-content" class="display:none"></div>
+          <div id="file-content-1"></div>
+        </form>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <h2 class="text-center">GB Generator</h2>
+        <div class="row">
+          <div class="col-6">
+            <div class="mb-3">
+              <select class="form-control" name="month" id="month">
+                <option selected disabled>Select Month</option>
+                <option value="Jan">Jan</option>
+                <option value="Feb">Feb</option>
+                <option value="Mar">Mar</option>
+                <option value="Apr">Apr</option>
+                <option value="May">May</option>
+                <option value="Jun">Jun</option>
+                <option value="Jul">Jul</option>
+                <option value="Aug">Aug</option>
+                <option value="Sep" selected>Sep</option>
+                <option value="Oct">Oct</option>
+                <option value="Nov">Nov</option>
+                <option value="Dec">Dec</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="mb-3">
+              <select class="form-control" name="year" id="year">
+                <option selected disabled>Select Year</option>
+                <option value="2019">2019</option>
+                <option value="2020" selected="true">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="d-grid gap-2">
+          <!-- <button type="button" name="" id="" class="btn btn-primary" onclick='handleFileSelect();'>Upload
+              Files</button> -->
+          <button type="button" name="" id="" class="btn btn-secondary" onclick="generateExcel();">
+            Generate Excel
+          </button>
+        </div>
+        <p id="msg1">&nbsp;</p>
+        <div id="file-content" class="display:none"></div>
+        <div id="file-content-1"></div>
+      </div>
+    </div>
+    <br />
+    <div class="row">
+      <!-- <div class="col-lg-12 text-center">
+        <p>A module Designed and Developed by <i>RAJAT KUMAR, JE(IT) RJT WR</i></p>
+      </div> -->
+    </div>
+  </div>
+  <script>
+    // $(document).ready(function () {
+
+    var tableToObj = function (table) {
+      var trs = table.rows,
+        trl = trs.length,
+        i = 0,
+        j = 0,
+        keys = [],
+        obj,
+        ret = [];
+
+      for (; i < trl; i++) {
+        if (i == 0) {
+          for (; j < trs[i].children.length; j++) {
+            keys.push(trs[i].children[j].innerHTML);
+          }
+        } else {
+          obj = {};
+          for (j = 0; j < trs[i].children.length; j++) {
+            obj[keys[j]] = trs[i].children[j].innerHTML;
+          }
+          ret.push(obj);
+        }
+      }
+
+      return ret;
+    };
+
+    function getMonthFromString(mon) {
+      var d = Date.parse(mon + "1, 2012");
+      if (!isNaN(d)) {
+        return ("0" + (new Date(d).getMonth() + 1)).slice(-2);
+      }
+      return -1;
+    }
+
+    function handleRevenueReportUpload() {
+      if (
+        !window.File ||
+        !window.FileReader ||
+        !window.FileList ||
+        !window.Blob
+      ) {
+        alert("The File APIs are not fully supported in this browser.");
+        return;
+      }
+
+      var input = document.getElementById("uploadRevenueReportFile");
+      // uploadRevenueScheduleFile
+      if (!input) {
+        alert("Um, couldn't find the fileinput element.");
+      } else if (!input.files) {
+        alert(
+          "This browser doesn't seem to support the `files` property of file inputs."
+        );
+      } else if (!input.files[0]) {
+        alert("Please select a file before clicking 'Load'");
+      } else {
+        var file = input.files[0];
+        var fr = new FileReader();
+        let then = this;
+        fr.onload = function (then) {
+          // Do stuff on onload, use fr.result for contents of file
+          $("#file-content").append($("<div/>").html(fr.result));
+          // console.log($('#file-content table tbody tr:nth-child(8) td table tbody tr td:first-child:not(empty)'));
+          // let t = tableToObj($('#file-content table tbody tr:nth-child(8) td table'))
+          // console.log(t);
+
+          // console.log($('#file-content table tbody tr:nth-child(8) td table').toArray());
+          let tables = $(
+            "#file-content table tbody tr:nth-child(8) td table"
+          ).toArray();
+          let time = $("#file-content table tbody tr:eq(4) td b").text();
+          time = time.split(":");
+          let yearMonth = time[1].trim();
+          yearMonth = yearMonth.split(" ");
+          yearMonth = yearMonth.filter(function (entry) {
+            return entry.trim() != "";
+          });
+          if (yearMonth.length > 1) {
+            yearMonth =
+              "20" + yearMonth[1] + getMonthFromString(yearMonth[0]);
+          } else {
+            let monthName = yearMonth[0].match(/[a-zA-Z]+/g);
+            let monthDigit = yearMonth[0].match(/\d+/g);
+            yearMonth = "20" + monthDigit + getMonthFromString(monthName);
+          }
+          console.log(yearMonth);
+          let newtables = [];
+          let allRows = [];
+          tables.forEach((table) => {
+            newtable = tableToObj(table);
+            let newnewtable = [];
+            newtable.forEach((t, i) => {
+              // console.log(t, i);
+              if (
+                t["SEQ NO"].trim() &&
+                t["<b>For the <br>Month</b>"] != "&nbsp;" &&
+                (t["SEQ NO"].trim() != 36200 || t["SEQ NO"].trim() != '36200')
+              ) {
+                allRows.push({
+                  sequence_id: parseInt(t["SEQ NO"]),
+                  for_the_month: parseFloat(t["<b>For the <br>Month</b>"]),
+                  year_month: yearMonth,
+                });
+              }
+
+              if (
+                t["SEQ NO"] == " " &&
+                t["<b>HEAD OF ACCOUNT</b>"] == "TRANSFERS DIVISIONAL"
+              ) {
+                allRows.push({
+                  sequence_id: '36200-I',
+                  for_the_month: parseFloat(t["<b>For the <br>Month</b>"]),
+                  year_month: yearMonth,
+                });
+              }
+
+              if (
+                t["SEQ NO"] == " " &&
+                t["<b>HEAD OF ACCOUNT</b>"] == "TRANSFERS RAILWAY CAPITAL "
+              ) {
+                allRows.push({
+                  sequence_id: '36200-II',
+                  for_the_month: parseFloat(t["<b>For the <br>Month</b>"]),
+                  year_month: yearMonth,
+                });
+              }
+              // if(parseFloat(t['<b>For the <br>Month</b>']) === NaN){
+              // }
+            });
+            newtables.push(newtable);
+          });
+          console.log("from revenue report");
+          console.log(allRows);
+          // $('#file-content table tbody tr:nth-child(8) td table').forEach(element => {
+          //   console.log(element);
+          // });
+
+          $.ajax({
+            url: 'http://localhost/gb-generator/store.php',
+            type: 'POST',
+            data: JSON.stringify({ 'sequence_data': allRows }),
+            dataType: 'json',
+            success: function (data) {
+              alert(data)
+            },
+            cache: false,
+            contentType: false,
+            processData: false,
+
+          });
+        };
+        var text = fr.readAsText(file);
+        var text1 = fr.readAsText(file1);
+        // console.log(text);
+        //fr.readAsBinaryString(file); //as bit work with base64 for example upload to server
+        // fr.readAsDataURL(file);
+      }
+    }
+
+    // $("form#uploadRevenueReportForm").submit(function (e) {
+
+    //   e.preventDefault();
+
+    //   var formData = new FormData(this);
+
+    //   $.ajax({
+    //     url: 'http://localhost/gb-generator/store.php',
+    //     type: 'POST',
+    //     data: formData,
+    //     success: function (data) {
+    //       // alert(data)
+    //     },
+    //     cache: false,
+    //     contentType: false,
+    //     processData: false,
+    //     enctype: 'multipart/form-data',
+    //   });
+
+    // });
+    // });
+
+    function handleRevenueScheduleUpload() {
+      if (
+        !window.File ||
+        !window.FileReader ||
+        !window.FileList ||
+        !window.Blob
+      ) {
+        alert("The File APIs are not fully supported in this browser.");
+        return;
+      }
+
+      var input = document.getElementById("uploadRevenueScheduleFile");
+      // uploadRevenueScheduleFile
+      if (!input) {
+        alert("Um, couldn't find the fileinput element.");
+      } else if (!input.files) {
+        alert(
+          "This browser doesn't seem to support the `files` property of file inputs."
+        );
+      } else if (!input.files[0]) {
+        alert("Please select a file before clicking 'Load'");
+      } else {
+        var file = input.files[0];
+        var fr = new FileReader();
+        let then = this;
+        fr.onload = function (then) {
+          // Do stuff on onload, use fr.result for contents of file
+          $("#file-content-1").append($("<div/>").html(fr.result));
+          // console.log($('#file-content table tbody tr:nth-child(8) td table tbody tr td:first-child:not(empty)'));
+          // let t = tableToObj($('#file-content table tbody tr:nth-child(8) td table'))
+          // console.log(t);
+          let finalheads = {
+            amount: 0,
+            counter: 1,
+            text: "Final Heads (Excluding Suspense, Accident - Compensation and Pensionary Charges)"
+          };
+          let misAdvRevOth = {
+            amount: 0,
+            counter: 2,
+            text: "Miscellaneous Advance Revenue Others"
+          };
+          let misAdvRevGST = {
+            amount: 0,
+            counter: 2,
+            text: "Miscellaneous Advance Revenue (GST)"
+          };
+          let misAdvRevC19 = {
+            amount: 0,
+            counter: 2,
+            text: "Miscellaneous Advance Revenue (COVID-19)"
+          };
+          let demandPayable = {
+            amount: 0,
+            counter: 2,
+            text: "Demand payable"
+          };
+          let demandsRecoverable = {
+            amount: 0,
+            counter: 2,
+            text: "Demands Recoverable"
+          };
+          let grossTotal = {
+            amount: 0,
+            counter: 1,
+            text: "Gross Earnings"
+          };
+          let sus19Counter = 2;
+          let finalArrToBeSent = [];
+          $("#file-content-1 table tr").each(function (index) {
+            if ($(this).find("td:first").html() ===
+              "Total Grant No.3 to 13<br>Final Heads (Excluding <br>Suspense,Accident-<br>Compensation and Pensionary Charges)") {
+              let amt = parseFloat($("#file-content-1 table tr").eq(index + 2).find("td").eq(1).html());
+              if (finalheads.counter === 1) {
+                finalheads.amount = amt;
+              }
+              finalheads.counter--;
+            } else if (
+              $(this).find("td:first").html() ===
+              "Miscellaneous Advance Revenue Others"
+            ) {
+              let amt = parseFloat($(this).find("td").eq(2).html());
+              if (misAdvRevOth.counter === 2) {
+                misAdvRevOth.amount = amt;
+              } else if (misAdvRevOth.counter === 1) {
+                misAdvRevOth.amount = misAdvRevOth.amount - amt;
+              }
+              misAdvRevOth.counter--;
+            } else if (
+              $(this).find("td:first").html() ===
+              "Miscellaneous Advance Revenue (GST)"
+            ) {
+              let amt = parseFloat($(this).find("td").eq(2).html());
+              if (misAdvRevGST.counter === 2) {
+                misAdvRevGST.amount = amt;
+              } else if (misAdvRevGST.counter === 1) {
+                misAdvRevGST.amount = misAdvRevGST.amount - amt;
+              }
+              misAdvRevGST.counter--;
+            } else if (
+              $(this).find("td:first").html() ===
+              "Miscellaneous Advance Revenue (COVID-19)"
+            ) {
+              let amt = parseFloat($(this).find("td").eq(2).html());
+              if (misAdvRevC19.counter === 2) {
+                misAdvRevC19.amount = amt;
+              } else if (misAdvRevC19.counter === 1) {
+                misAdvRevC19.amount = misAdvRevC19.amount - amt;
+              }
+              misAdvRevC19.counter--;
+            } else if ($(this).find("td:first").html() === "Demand payable") {
+              let amt = parseFloat($(this).find("td").eq(2).html());
+              if (demandPayable.counter === 2) {
+                demandPayable.amount = amt;
+              } else if (demandPayable.counter === 1) {
+                demandPayable.amount = demandPayable.amount - amt;
+              }
+              demandPayable.counter--;
+            } else if ($(this).find("td:first").html() === "DEMANDS RECOVERABLE<br>&nbsp;") {
+              let amt = parseFloat($(this).find("td").eq(1).text());
+              if (demandsRecoverable.counter === 2) {
+                demandsRecoverable.amount = amt;
+              } else if (demandsRecoverable.counter === 2) {
+                demandsRecoverable.amount = demandsRecoverable.amount - amt;
+              }
+              demandsRecoverable.counter--;
+            } else if ($(this).find("td:first").html() === "<b>TOTAL GROSS EARNINGS</b><br>&nbsp;") {
+              if (grossTotal.counter === 1) {
+                grossTotal.amount = parseFloat($(this).find("td").eq(1).text());
+              }
+              grossTotal.counter--;
+            }
+            // else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT CLAIMS(00844501)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844501',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // }
+            // else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT BOOKS [UNPAID WAGES] FIRST HALF(00844510)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844510',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // }
+            // else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT ESTABLISHMENT NON GAZZ(00844507)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844507',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT PF(00844505)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844505',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT NPS(00844572)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844572',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT PENSION(00844508)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844508',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT COAL(00844506)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844506',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "LABOUR CESS  CHARGE (00844551)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844551',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT SECURITY(00844553)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844553',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // }else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT EXPENDITURE(00844519)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844519',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT ECC BANK(00844512)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844512',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT H.S.D.OIL(00844515)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844515',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT WORKS(00844521)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844521',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT BOOKS EARNEST MONEY(00844533)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844533',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT CIPS(00844539)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844539',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT PM RELIEF FUND(00844540)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844540',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT STORES-LIQUIDITY DAMAGE(00844583)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844583',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT MISC TDS CGST(00844541)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844541',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT MISC TDS SGST(00844542)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844542',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT MISC TDS IGST(00844544)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844544',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT EST GAZZ(D n G)(00844566)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844566',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "Deposit Misc CGST Output Tax Liablity(00844545)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844545',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "Deposit Misc SGST Output Tax Liablity(00844546)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844546',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "Deposit Misc IGST Output Tax Liablity(00844548)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844548',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT CGST RCM TAX LIABLITY(00844595)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844595',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT SGST RCM TAX LIABLITY(00844596)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844596',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT CESS RCM TAX LIABLITY(00844599)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844599',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT EST NON GAZZ(D n G)(00844567)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844567',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "PM CARES FUND(00844569)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844569',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "EBR-IRFC Fund Source (84)") {
+            //   finalArrToBeSent.push({
+            //     allocation: 'EBR84',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "EBR-Special Fund Source (85)") {
+            //   finalArrToBeSent.push({
+            //     allocation: 'EBR85',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "EBR-SPECIAL(00844685)") {
+            //   finalArrToBeSent.push({
+            //     allocation: 'EBR85',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT IRFC(00844528)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844528',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT RAILWAY MINISTERS WELFARE AND RELIEF(00844514)") {
+            //   finalArrToBeSent.push({
+            //     allocation: '00844514',
+            //     debit: $(this).find("td").eq(1).text(),
+            //     credit: $(this).find("td").eq(2).text()
+            //   })
+            // }
+            // DEPOSIT ESTABLISHMENT NON GAZZ(00844507)
+
+            sus19Counter--;
+          });
+          finalArrToBeSent.push(finalheads);
+          finalArrToBeSent.push(misAdvRevOth);
+          finalArrToBeSent.push(misAdvRevGST);
+          finalArrToBeSent.push(misAdvRevC19);
+          finalArrToBeSent.push(demandPayable);
+          finalArrToBeSent.push(demandsRecoverable);
+          finalArrToBeSent.push(grossTotal);
+
+          let time = $("#file-content-1 table tbody tr:eq(5) td b").text();
+          yearMonth = time.split(" ");
+          yearMonth = yearMonth.filter(function (entry) {
+            return entry.trim() != "";
+          });
+          let last2Digits = yearMonth[yearMonth.length - 1];
+          let month = yearMonth[yearMonth.length - 2];
+          console.log(isNaN(last2Digits));
+          if (isNaN(last2Digits)) {
+            split = last2Digits.split(/(\d+)/);
+            split = split.filter(function (entry) {
+              return entry.trim() != "";
+            });
+            last2Digits = split[1];
+            month = split[0];
+          }
+          console.log(last2Digits, month);
+          if (yearMonth.length > 1) {
+            yearMonth =
+              "20" + last2Digits + getMonthFromString(month);
+          }
+          console.log(yearMonth, finalArrToBeSent);
+          $.ajax({
+            url: 'http://localhost/gb-generator/store-revenue-schedule.php',
+            type: 'POST',
+            data: JSON.stringify({ 'sequence_data': finalArrToBeSent, 'year_month': yearMonth }),
+            dataType: 'json',
+            success: function (data) {
+              alert(data)
+            },
+            cache: false,
+            contentType: false,
+            processData: false,
+          });
+        };
+        var text = fr.readAsText(file);
+        // console.log(text);
+        //fr.readAsBinaryString(file); //as bit work with base64 for example upload to server
+        // fr.readAsDataURL(file);
+      }
+    }
+
+    function generateExcel() {
+      var date = new Date(),
+        y = $("#year").val(),
+        m = String(+getMonthFromString($("#month").val())).padStart(2, '0');
+      var firstDay = new Date(y, m, 1);
+      var lastDay = new Date(y, +m + 1, 0);
+
+      var FD = new Date(firstDay);
+      var LD = new Date(lastDay);
+      let formValue = {
+        month_full: $("#month").val(),
+        month: m,
+        start_date: FD.getDate() + '/' + (FD.getMonth()) + '/' + FD.getFullYear(),
+        end_date: LD.getDate() + '/' + (LD.getMonth()) + '/' + LD.getFullYear(),
+        year: y
+      }
+      $.ajax({
+        url: "http://localhost/gb-generator/excel-generator.php",
+        type: "POST",
+        data: JSON.stringify(formValue),
+        dataType: "json",
+        success: function (data) {
+          alert(data);
+        },
+        cache: false,
+        contentType: false,
+        processData: false,
+      });
+    }
+  </script>
+</body>
+
+</html>
