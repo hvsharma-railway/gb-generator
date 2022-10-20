@@ -270,28 +270,6 @@
       }
     }
 
-    // $("form#uploadRevenueReportForm").submit(function (e) {
-
-    //   e.preventDefault();
-
-    //   var formData = new FormData(this);
-
-    //   $.ajax({
-    //     url: 'http://localhost/gb-generator/store.php',
-    //     type: 'POST',
-    //     data: formData,
-    //     success: function (data) {
-    //       // alert(data)
-    //     },
-    //     cache: false,
-    //     contentType: false,
-    //     processData: false,
-    //     enctype: 'multipart/form-data',
-    //   });
-
-    // });
-    // });
-
     function handleRevenueScheduleUpload() {
       if (
         !window.File ||
@@ -642,14 +620,22 @@
           finalArrToBeSent.push(demandsRecoverable);
           finalArrToBeSent.push(grossTotal);
 
-          let time = $("#file-content-1 table tbody tr:eq(5) td b").text();
+          let path = "#file-content-1 table tbody tr:eq(5) td b";
+          let time = $(path).text();
+          let isSupplementary = $(path).text().includes("Supplementary");
           yearMonth = time.split(" ");
           yearMonth = yearMonth.filter(function (entry) {
             return entry.trim() != "";
           });
           let last2Digits = yearMonth[yearMonth.length - 1];
+          if (isSupplementary) {
+            last2Digits = yearMonth[yearMonth.length - 4];
+          }
           let month = yearMonth[yearMonth.length - 2];
-          console.log(isNaN(last2Digits));
+          if (isSupplementary) {
+            month = yearMonth[yearMonth.length - 5];
+          }
+          console.log(month, isNaN(last2Digits));
           if (isNaN(last2Digits)) {
             split = last2Digits.split(/(\d+)/);
             split = split.filter(function (entry) {

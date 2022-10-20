@@ -306,27 +306,27 @@ $sheet->getStyle($sheet->calculateWorksheetDimension())->applyFromArray($styleAr
 $activeCellNo = $activeCellNo + 2;
 
 // SECTION Signatures
-$sheet->mergeCells('E'.($activeCellNo - 1).':F'.$activeCellNo);
-$sheet->setCellValue('E'.($activeCellNo - 1), 'A/C ASSTT. (BKS)');
-$sheet->getStyle('E'.$activeCellNo)->getFont()->setBold(true);
-$sheet->getStyle('E'.$activeCellNo)->getAlignment()->setHorizontal('center');
+$sheet->mergeCells('E' . ($activeCellNo - 1) . ':F' . $activeCellNo);
+$sheet->setCellValue('E' . ($activeCellNo - 1), 'A/C ASSTT. (BKS)');
+$sheet->getStyle('E' . $activeCellNo)->getFont()->setBold(true);
+$sheet->getStyle('E' . $activeCellNo)->getAlignment()->setHorizontal('center');
 // !SECTION Signatures
 
 // SECTION Signatures
-$sheet->mergeCells('G'.($activeCellNo - 1).':H'.$activeCellNo);
-$sheet->setCellValue('G'.($activeCellNo - 1), 'SR. SO (BKS)');
-$sheet->getStyle('G'.$activeCellNo)->getFont()->setBold(true);
-$sheet->getStyle('G'.$activeCellNo)->getAlignment()->setHorizontal('center');
+$sheet->mergeCells('G' . ($activeCellNo - 1) . ':H' . $activeCellNo);
+$sheet->setCellValue('G' . ($activeCellNo - 1), 'SR. SO (BKS)');
+$sheet->getStyle('G' . $activeCellNo)->getFont()->setBold(true);
+$sheet->getStyle('G' . $activeCellNo)->getAlignment()->setHorizontal('center');
 // !SECTION Signatures
 
 // SECTION Signatures
-$sheet->mergeCells('I'.($activeCellNo - 1).':J'.$activeCellNo);
-$sheet->setCellValue('I'.($activeCellNo - 1), 'SR. DFM-RJT');
-$sheet->getStyle('I'.$activeCellNo)->getFont()->setBold(true);
-$sheet->getStyle('I'.$activeCellNo)->getAlignment()->setHorizontal('center');
+$sheet->mergeCells('I' . ($activeCellNo - 1) . ':J' . $activeCellNo);
+$sheet->setCellValue('I' . ($activeCellNo - 1), 'SR. DFM-RJT');
+$sheet->getStyle('I' . $activeCellNo)->getFont()->setBold(true);
+$sheet->getStyle('I' . $activeCellNo)->getAlignment()->setHorizontal('center');
 // !SECTION Signatures
 
-$writer->save("gb-" . $month . "-" . $year . "-" . mt_rand(1, time()) . ".xlsx");
+$writer->save("generated-files/GB-" . $month . "-" . $year . "-" . mt_rand(1, time()) . ".xlsx");
 
 
 function setValueStyle($sheet, $cellNo, $content, $isNumber = false)
