@@ -149,9 +149,16 @@ $spreadsheet->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
 try {
     $current_month = str_pad($json->month, 2, '0', STR_PAD_LEFT);
     $previous_month = str_pad($json->month - 1, 2, '0', STR_PAD_LEFT);
+    $current_year = $json->year;
     $json->month = str_pad($json->month, 2, '0', STR_PAD_LEFT);
-    $current_month_year_digit = $json->year . $current_month;
-    $previous_month_year_digit = $json->year . $previous_month;
+    $current_month_year_digit = $current_year . $current_month;
+    if ($previous_month == 00) {
+        $previous_year = strval(intval($current_year - 1));
+        $previous_month = "12";
+        $previous_month_year_digit = $previous_year . $previous_month;
+    } else {
+        $previous_month_year_digit = $current_year . $previous_month;
+    }
     // $qr = 'SELECT id as sid, head_of_account, (select end_of_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $previous_month_year_digit . '") as opening_balance_debit_amount, (select end_of_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $previous_month_year_digit . '") as opening_balance_credit_amount, (select for_the_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") as for_the_month_debit_amount, (select for_the_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") as for_the_month_credit_amount, (select id from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") as seq_data_id FROM `sequence`';
     $qr = 'SELECT id as sid, head_of_account, debit_sequence, credit_sequence, should_debit_be_zero_if_negative, should_credit_be_zero_if_negative, should_debit_be_zero_if_positive, should_credit_be_zero_if_positive,
     case should_only_carry_forward
