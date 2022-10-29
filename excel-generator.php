@@ -404,7 +404,7 @@ try {
         setValueStyle($sheet, 'H' . $activeCellNo, $ending_balance, true);
         $total_ending_balance += $ending_balance;
 
-        $q = "UPDATE `sequence_data` SET `end_of_month_credit_amount` = $ending_balance, WHERE `id` =" . $value['seq_data_id'];
+        $q = "UPDATE `sequence_data` SET `end_of_month_credit_amount` = $ending_balance WHERE `id` =" . $value['seq_data_id'];
         $ar = $conn->query($q);
         $activeCellNo++;
     }
