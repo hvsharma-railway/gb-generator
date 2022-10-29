@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "gb-generator-3";
+$dbname = "gb-generator";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -23,7 +23,11 @@ foreach ($sequence_data as $sequence) {
     // $allocation = isset($sequence->allocation) ? $sequence->allocation : null;
 
     // print_r("SELECT * FROM sequence WHERE credit_sequence=" . $sequence->sequence_id . " or debit_sequence=" . $sequence->sequence_id);
-    $qu = "SELECT * FROM sequence WHERE ((head_of_account='" . $sequence->text . "'))";
+    if (isset($sequence->text) && $sequence->text != '') {
+        $qu = "SELECT * FROM sequence WHERE ((head_of_account='" . $sequence->text . "'))";
+    } else if (isset($sequence->allocation) && $sequence->allocation != '') {
+        $qu = "SELECT * FROM sequence WHERE ((allocation='" . $sequence->allocation . "'))";
+    }
     echo "<pre>";
     print_r("******* Select Query Starts *********");
     print_r($qu);
@@ -58,10 +62,10 @@ foreach ($sequence_data as $sequence) {
                 if (isset($seqData['debit_sequence']) && $seqData['debit_sequence'] != NULL) {
                     $debit_amount = $sequence->amount;
                 }
-                // if ($seqData['should_include_in_II_part'] == 1) {
-                //     $credit_amount = $sequence->credit;
-                //     $debit_amount = $sequence->debit;
-                // }
+                if ($seqData['should_include_in_II_part'] == 1) {
+                    $credit_amount = $sequence->credit;
+                    $debit_amount = $sequence->debit;
+                }
 
                 if ($doesDataExist->num_rows <= 0) {
                     $q = "INSERT INTO `sequence_data` (`id`,`sequence_id`, `custom_year_month`,`for_the_month_credit_amount`, `for_the_month_debit_amount`, `created_at`, `updated_at`) VALUES (null, $sequence_id, $json->year_month, $credit_amount, $debit_amount, current_timestamp(), current_timestamp())";
@@ -78,9 +82,9 @@ foreach ($sequence_data as $sequence) {
                         $r .= " `for_the_month_credit_amount` = $credit_amount";
                     }
                     if (isset($debit_amount) && $debit_amount != 0) {
-                        // if($r != ''){
-                        //     $r .= ',';
-                        // }
+                        if($r != ''){
+                            $r .= ',';
+                        }
                         $r .= " `for_the_month_debit_amount` = $debit_amount";
                     }
                     if (!empty($r)) {
