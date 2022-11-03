@@ -504,6 +504,12 @@
                 debit: $(this).find("td").eq(1).text(),
                 credit: $(this).find("td").eq(2).text()
               })
+            } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT STORES-SECURITY DEPOSIT(00844584)") {
+              finalArrToBeSent.push({
+                allocation: '00844584',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
             } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT MISC TDS CGST(00844541)") {
               finalArrToBeSent.push({
                 allocation: '00844541',
@@ -590,7 +596,7 @@
               })
             } else if ($(this).find("td").contents().eq(0).text() === "EBR-SPECIAL(00844685)") {
               finalArrToBeSent.push({
-                allocation: 'EBR85',
+                allocation: '00844685',
                 debit: $(this).find("td").eq(1).text(),
                 credit: $(this).find("td").eq(2).text()
               })
