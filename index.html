@@ -612,6 +612,18 @@
                 debit: $(this).find("td").eq(1).text(),
                 credit: $(this).find("td").eq(2).text()
               })
+            } else if ($(this).find("td").contents().eq(0).text() === "Deposit Misc UTGST Output Tax Liablity(00844547)") {
+              finalArrToBeSent.push({
+                allocation: '00844547',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "DEPOSIT WORKS-CONT/WORKS TAX(00844531)") {
+              finalArrToBeSent.push({
+                allocation: '00844531',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
             }
             // DEPOSIT ESTABLISHMENT NON GAZZ(00844507)
 
