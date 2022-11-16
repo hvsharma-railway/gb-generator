@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "gb-generator";
+$dbname = "gb-generator-1";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
