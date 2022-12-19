@@ -42,7 +42,7 @@ $month_year = $month . '-' . $year;
 // $curr_fin_year = date('d/m/Y', '01/' . $month_fig . '/' . ($year));
 
 
-$sheet->mergeCells('A1:H1');
+$sheet->mergeCells('A1:J1');
 $sheet->setCellValue("A1", "MONTH " . $month_year);
 $sheet->getStyle('A1')->getFont()->setBold(true);
 $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
@@ -152,7 +152,7 @@ $sheet->getColumnDimension('J')->setWidth($width);
 // !SECTION
 
 // NOTE Auto Size Columns
-$spreadsheet->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+$spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(76.5);
 
 try {
     $json->fin_month = $json->month;
@@ -301,19 +301,19 @@ foreach ($seqData as $seq) {
     // !SECTION
 
     // SECTION Head Of Account
-    setValueStyle($sheet, "D" . $activeCellNo, isset($seq['head_of_account']) ? $seq['head_of_account'] : '-');
+    setValueStyle($sheet, "D" . $activeCellNo, isset($seq['head_of_account']) ? $seq['head_of_account'] : '-', false, 'left');
     // !SECTION
 
 
     // SECTION Opening Balance 
     // NOTE Opening Balance Debit Amount
     $obda = isset($seq['opening_balance_debit_amount']) ? floatval($seq['opening_balance_debit_amount']) : 0;
-    setValueStyle($sheet, "E" . $activeCellNo, $obda, true);
+    setValueStyle($sheet, "E" . $activeCellNo, $obda, true, 'right');
     $grandTotal['opening_balance_debit_grand_total'] += $obda;
 
     // NOTE Opening Balance Credit Amount
     $obca = isset($seq['opening_balance_credit_amount']) ? floatval($seq['opening_balance_credit_amount']) : 0;
-    setValueStyle($sheet, "F" . $activeCellNo, $obca, true);
+    setValueStyle($sheet, "F" . $activeCellNo, $obca, true, 'right');
     if (!in_array($seq['credit_sequence'], [12960, 12965])) {
         $grandTotal['opening_balance_credit_grand_total'] += $obca;
     }
@@ -329,7 +329,7 @@ foreach ($seqData as $seq) {
             $ftmda = 0;
         }
     }
-    setValueStyle($sheet, "G" . $activeCellNo, $ftmda, true);
+    setValueStyle($sheet, "G" . $activeCellNo, $ftmda, true, 'right');
     $grandTotal['for_the_month_debit_grand_total'] += $ftmda;
 
     // NOTE For The Month Credit Amount
@@ -341,7 +341,7 @@ foreach ($seqData as $seq) {
             $ftmca = 0;
         }
     }
-    setValueStyle($sheet, "H" . $activeCellNo, $ftmca, true);
+    setValueStyle($sheet, "H" . $activeCellNo, $ftmca, true, 'right');
     if (!in_array($seq['credit_sequence'], [12960, 12965])) {
         $grandTotal['for_the_month_credit_grand_total'] += $ftmca;
     }
@@ -352,7 +352,7 @@ foreach ($seqData as $seq) {
     if ($seq['should_debit_be_zero_if_negative'] || $seq['should_debit_be_zero_if_positive']) {
         $eotmda = 0;
     }
-    setValueStyle($sheet, "I" . $activeCellNo, ($eotmda), true);
+    setValueStyle($sheet, "I" . $activeCellNo, ($eotmda), true, 'right');
 
     $grandTotal['end_of_the_month_debit_grand_total'] += $eotmda;
 
@@ -364,7 +364,7 @@ foreach ($seqData as $seq) {
     if (!in_array($seq['credit_sequence'], [12960, 12965])) {
         $grandTotal['end_of_the_month_credit_grand_total'] += $eotmca;
     }
-    setValueStyle($sheet, "J" . $activeCellNo, ($eotmca), true);
+    setValueStyle($sheet, "J" . $activeCellNo, ($eotmca), true, 'right');
     if ($is_final && $seq['sid'] != 5) {
         $sql = "SELECT * FROM sequence_data WHERE sequence_id=" . $seq['sid'] . " and custom_year_month =" . $previous_month_year_digit . " and is_final = 1";
         echo "<pre>";
@@ -445,25 +445,25 @@ if ($is_final) {
 }
 
 // SECTION Setting Grand total Values
-setValueStyle($sheet, "E" . $activeCellNo, $grandTotal['opening_balance_debit_grand_total'], true);
-setValueStyle($sheet, "F" . $activeCellNo, $grandTotal['opening_balance_credit_grand_total'], true);
-setValueStyle($sheet, "G" . $activeCellNo, $grandTotal['for_the_month_debit_grand_total'], true);
-setValueStyle($sheet, "H" . $activeCellNo, $grandTotal['for_the_month_credit_grand_total'], true);
-setValueStyle($sheet, "I" . $activeCellNo, $grandTotal['end_of_the_month_debit_grand_total'], true);
-setValueStyle($sheet, "J" . $activeCellNo, $grandTotal['end_of_the_month_credit_grand_total'], true);
+setValueStyle($sheet, "E" . $activeCellNo, $grandTotal['opening_balance_debit_grand_total'], true, 'right');
+setValueStyle($sheet, "F" . $activeCellNo, $grandTotal['opening_balance_credit_grand_total'], true, 'right');
+setValueStyle($sheet, "G" . $activeCellNo, $grandTotal['for_the_month_debit_grand_total'], true, 'right');
+setValueStyle($sheet, "H" . $activeCellNo, $grandTotal['for_the_month_credit_grand_total'], true, 'right');
+setValueStyle($sheet, "I" . $activeCellNo, $grandTotal['end_of_the_month_debit_grand_total'], true, 'right');
+setValueStyle($sheet, "J" . $activeCellNo, $grandTotal['end_of_the_month_credit_grand_total'], true, 'right');
 // setValueStyle($sheet, "J" . $activeCellNo, '=SUM(J4:J75)-J16-J17-J18-J19');
 $sheet->mergeCells('A' . $activeCellNo . ':C' . $activeCellNo);
-setValueStyle($sheet, "D" . $activeCellNo, "Grand Total", true);
+setValueStyle($sheet, "D" . $activeCellNo, "Grand Total", true, 'left');
 // !SECTION Setting Grand total Values
 
 $activeCellNo++;
 
 // SECTION for showing differences testing purpose only
 $sheet->mergeCells('A' . $activeCellNo . ':C' . $activeCellNo);
-setValueStyle($sheet, "D" . $activeCellNo, 'Differences (for testing purpose only)', true);
-setValueStyle($sheet, "F" . $activeCellNo, round($grandTotal['opening_balance_debit_grand_total'] - $grandTotal['opening_balance_credit_grand_total'], 2), true);
-setValueStyle($sheet, "H" . $activeCellNo, round($grandTotal['for_the_month_debit_grand_total'] - $grandTotal['for_the_month_credit_grand_total'], 2), true);
-setValueStyle($sheet, "J" . $activeCellNo, round($grandTotal['end_of_the_month_debit_grand_total'] - $grandTotal['end_of_the_month_credit_grand_total'], 2), true);
+setValueStyle($sheet, "D" . $activeCellNo, 'Differences (for testing purpose only)', true, 'left');
+setValueStyle($sheet, "F" . $activeCellNo, round($grandTotal['opening_balance_debit_grand_total'] - $grandTotal['opening_balance_credit_grand_total'], 2), true, 'right');
+setValueStyle($sheet, "H" . $activeCellNo, round($grandTotal['for_the_month_debit_grand_total'] - $grandTotal['for_the_month_credit_grand_total'], 2), true, 'right');
+setValueStyle($sheet, "J" . $activeCellNo, round($grandTotal['end_of_the_month_debit_grand_total'] - $grandTotal['end_of_the_month_credit_grand_total'], 2), true, 'right');
 // !SECTION
 
 $activeCellNo++;
@@ -561,22 +561,22 @@ if (!$is_final) {
             $sheet->mergeCells('B' . $activeCellNo . ':C' . $activeCellNo);
 
             setValueStyle($sheet, 'B' . $activeCellNo, isset($value['allocation']) && $value['allocation'] != '' ? $value['allocation'] : '-', true);
-            setValueStyle($sheet, 'D' . $activeCellNo, isset($value['head_of_account']) ? $value['head_of_account'] : '-', true);
+            setValueStyle($sheet, 'D' . $activeCellNo, isset($value['head_of_account']) ? $value['head_of_account'] : '-', true, 'left');
 
             $opening_balance = isset($value['opening_balance']) ? floatval($value['opening_balance']) : 0;
-            setValueStyle($sheet, 'E' . $activeCellNo, $opening_balance, true);
+            setValueStyle($sheet, 'E' . $activeCellNo, $opening_balance, true, 'right');
             $total_opening_balance += $opening_balance;
 
             $debit = isset($value['debit']) ? floatval($value['debit']) : 0;
-            setValueStyle($sheet, 'F' . $activeCellNo, $debit, true);
+            setValueStyle($sheet, 'F' . $activeCellNo, $debit, true, 'right');
             $total_debit += $debit;
 
             $credit = isset($value['credit']) ? floatval($value['credit']) : 0;
-            setValueStyle($sheet, 'G' . $activeCellNo, $credit, true);
+            setValueStyle($sheet, 'G' . $activeCellNo, $credit, true, 'right');
             $total_credit += $credit;
 
             $ending_balance = ((floatval($opening_balance) + floatval($credit)) - floatval($debit));
-            setValueStyle($sheet, 'H' . $activeCellNo, $ending_balance, true);
+            setValueStyle($sheet, 'H' . $activeCellNo, $ending_balance, true, 'right');
             $total_ending_balance += $ending_balance;
 
             $q = "UPDATE `sequence_data` SET `end_of_month_credit_amount` = $ending_balance WHERE `id` =" . $value['seq_data_id'];
@@ -584,11 +584,11 @@ if (!$is_final) {
             $activeCellNo++;
         }
         $sheet->mergeCells('A' . $activeCellNo . ':C' . $activeCellNo);
-        setValueStyle($sheet, 'D' . $activeCellNo, "Total", true);
-        setValueStyle($sheet, 'E' . $activeCellNo, $total_opening_balance, true);
-        setValueStyle($sheet, 'F' . $activeCellNo, $total_debit, true);
-        setValueStyle($sheet, 'G' . $activeCellNo, $total_credit, true);
-        setValueStyle($sheet, 'H' . $activeCellNo, $total_ending_balance, true);
+        setValueStyle($sheet, 'D' . $activeCellNo, "Total", true, 'left');
+        setValueStyle($sheet, 'E' . $activeCellNo, $total_opening_balance, true, 'right');
+        setValueStyle($sheet, 'F' . $activeCellNo, $total_debit, true, 'right');
+        setValueStyle($sheet, 'G' . $activeCellNo, $total_credit, true, 'right');
+        setValueStyle($sheet, 'H' . $activeCellNo, $total_ending_balance, true, 'right');
     } catch (Exception $e) {
         //...
         printf("Error message while quering deposit data: %s\n", $conn->error);
@@ -606,7 +606,7 @@ if ($is_final) {
 $writer->save($file_name);
 
 
-function setValueStyle($sheet, $cellNo, $content, $isNumber = false)
+function setValueStyle($sheet, $cellNo, $content, $isNumber = false, $horizontalAlign = 'center')
 {
     if ($isNumber) {
         $sheet->setCellValueExplicit($cellNo, $content,  \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
@@ -614,5 +614,5 @@ function setValueStyle($sheet, $cellNo, $content, $isNumber = false)
         $sheet->setCellValue($cellNo, $content);
     }
     $sheet->getStyle($cellNo)->getFont()->setBold(true);
-    $sheet->getStyle($cellNo)->getAlignment()->setHorizontal('center');
+    $sheet->getStyle($cellNo)->getAlignment()->setHorizontal($horizontalAlign);
 }
