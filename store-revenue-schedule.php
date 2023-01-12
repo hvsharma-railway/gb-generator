@@ -62,7 +62,7 @@ foreach ($sequence_data as $sequence) {
                 if (isset($seqData['debit_sequence']) && $seqData['debit_sequence'] != NULL) {
                     $debit_amount = $sequence->amount;
                 }
-                if ($seqData['should_include_in_II_part'] == 1) {
+                if ($seqData['should_include_in_II_part'] == 1 || $seqData['should_include_in_III_part'] == 1) {
                     $credit_amount = $sequence->credit;
                     $debit_amount = $sequence->debit;
                 }

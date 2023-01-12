@@ -336,6 +336,37 @@
             counter: 1,
             text: "Gross Earnings"
           };
+          let cgstItcFull = {
+            amount: 0,
+            counter: 1,
+            text: "CGST ITC Full"
+          };
+          let sgstItcFull = {
+            amount: 0,
+            counter: 1,
+            text: "SGST ITC Full"
+          };
+          let cgstItcMiscAdvRevenue = {
+            amount: 0,
+            counter: 1,
+            text: "CGST ITC Misc Adv. Revenue (PARTIAL)"
+          };
+          let sgstItcMiscAdvRevenue = {
+            amount: 0,
+            counter: 1,
+            text: "SGST ITC Misc Adv. Revenue (PARTIAL)"
+          };
+          let ugstItcMiscAdvRevenue = {
+            amount: 0,
+            counter: 1,
+            text: "UGST ITC Misc Adv. Revenue (PARTIAL)"
+          };
+          let igstItcMiscAdvRevenue = {
+            amount: 0,
+            counter: 1,
+            text: "IGST ITC Misc Adv. Revenue (PARTIAL)"
+          };
+
           let sus19Counter = 2;
           let finalArrToBeSent = [];
           $("#file-content-1 table tr").each(function (index) {
@@ -355,7 +386,17 @@
               let amt = parseFloat($(this).find("td").eq(2).html());
               if (misAdvRevOth.counter === 2) {
                 misAdvRevOth.amount = amt;
+                finalArrToBeSent.push({
+                  allocation: '12112101',
+                  debit: amt,
+                  credit: 0
+                })
               } else if (misAdvRevOth.counter === 1) {
+                finalArrToBeSent.push({
+                  allocation: '12191254',
+                  debit: 0,
+                  credit: amt
+                });
                 misAdvRevOth.amount = misAdvRevOth.amount - amt;
               }
               misAdvRevOth.counter--;
@@ -380,6 +421,8 @@
               } else if (misAdvRevC19.counter === 1) {
                 misAdvRevC19.amount = misAdvRevC19.amount - amt;
               }
+              misAdvRevC19.debit = misAdvRevC19.amount;
+              misAdvRevC19.credit = 0;
               misAdvRevC19.counter--;
             } else if ($(this).find("td:first").html() === "Demand payable") {
               let amt = parseFloat($(this).find("td").eq(2).html());
@@ -627,8 +670,49 @@
                 debit: $(this).find("td").eq(1).text(),
                 credit: $(this).find("td").eq(2).text()
               })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue CGST-12111572") {
+              finalArrToBeSent.push({
+                allocation: '12111572',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue SGST-12111573") {
+              finalArrToBeSent.push({
+                allocation: '12111573',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue IGST-12111575") {
+              finalArrToBeSent.push({
+                allocation: '12111575',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue CGST-12111672") {
+              finalArrToBeSent.push({
+                allocation: '12111672',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue SGST-12111673") {
+              finalArrToBeSent.push({
+                allocation: '12111673',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue IGST-12111675") {
+              finalArrToBeSent.push({
+                allocation: '12111675',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
+            } else if ($(this).find("td").contents().eq(0).text() === "Misc Adv Revenue UGST-12111674") {
+              finalArrToBeSent.push({
+                allocation: '12111674',
+                debit: $(this).find("td").eq(1).text(),
+                credit: $(this).find("td").eq(2).text()
+              })
             }
-            // DEPOSIT ESTABLISHMENT NON GAZZ(00844507)
 
             sus19Counter--;
           });
