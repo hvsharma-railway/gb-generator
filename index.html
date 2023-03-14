@@ -64,14 +64,14 @@
                 <option selected disabled>Select Month</option>
                 <option value="Jan">Jan</option>
                 <option value="Feb">Feb</option>
-                <option value="Mar">Mar</option>
+                <option value="Mar" selected>Mar</option>
                 <option value="Mar (Final)">Mar (Final)</option>
                 <option value="Apr">Apr</option>
                 <option value="May">May</option>
                 <option value="Jun">Jun</option>
                 <option value="Jul">Jul</option>
                 <option value="Aug">Aug</option>
-                <option value="Sep" selected>Sep</option>
+                <option value="Sep">Sep</option>
                 <option value="Oct">Oct</option>
                 <option value="Nov">Nov</option>
                 <option value="Dec">Dec</option>
@@ -83,9 +83,10 @@
               <select class="form-control" name="year" id="year">
                 <option selected disabled>Select Year</option>
                 <option value="2019">2019</option>
-                <option value="2020" selected="true">2020</option>
+                <option value="2020">2020</option>
                 <option value="2021">2021</option>
                 <option value="2022">2022</option>
+                <option value="2023" selected="true">2023</option>
               </select>
             </div>
           </div>
@@ -386,17 +387,17 @@
               let amt = parseFloat($(this).find("td").eq(2).html());
               if (misAdvRevOth.counter === 2) {
                 misAdvRevOth.amount = amt;
-                finalArrToBeSent.push({
-                  allocation: '12112101',
-                  debit: amt,
-                  credit: 0
-                })
+                // finalArrToBeSent.push({
+                //   allocation: '12112101',
+                //   debit: amt,
+                //   credit: 0
+                // })
               } else if (misAdvRevOth.counter === 1) {
-                finalArrToBeSent.push({
-                  allocation: '12191254',
-                  debit: 0,
-                  credit: amt
-                });
+                // finalArrToBeSent.push({
+                //   allocation: '12191254',
+                //   debit: 0,
+                //   credit: amt
+                // });
                 misAdvRevOth.amount = misAdvRevOth.amount - amt;
               }
               misAdvRevOth.counter--;

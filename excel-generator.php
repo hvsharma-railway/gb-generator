@@ -624,36 +624,24 @@ if (!$is_final) {
     try {
         $qr3 = '( SELECT id as sid, head_of_account, allocation,
         case should_only_carry_forward 
-            when "0" then (select end_of_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $previous_month_year_digit . '" and is_final = 0) 
-            when "1" then (select end_of_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") 
-         end as opening_balance,
-         case should_only_carry_forward 
-            when "0" then (select for_the_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") 
-            when "1" then (select for_the_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") 
-         end as debit,
-         case should_only_carry_forward 
-            when "0" then (select for_the_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") 
-            when "1" then (select for_the_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") 
-         end as credit,
-         (select id from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") as seq_data_id, true as can_be_edited FROM `sequence` 
-         where sequence.should_include_in_III_part = 1 and sequence.can_be_found_in_schedule = 1 order by allocation) 
+            when "0" then (select end_of_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $previous_month_year_digit . '" and is_final = 0) 
+            when "1" then (select end_of_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") 
+         end as opening_balance, ';
+        if ($is_final && $month == 'MAR') {
+            $qr3 .= "0";
+        } else if ($is_final == 0) {
+            $qr3 .= "(select for_the_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = '" . $current_month_year_digit . "' and is_final = 0) ";
+        }
+        $qr3 .= " as debit, ";
+        if ($is_final && $month == 'MAR') {
+            $qr3 .= "0";
+        } else if ($is_final == 0) {
+            $qr3 .= "(select for_the_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = '" . $current_month_year_digit . "'  and is_final = 0) ";
+        }
+        $qr3 .=  " as credit,";
          
-        union 
-        
-        (SELECT id as sid, head_of_account, allocation,
-         case should_only_carry_forward 
-                    when "0" then (select end_of_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $previous_month_year_digit . '") 
-                    when "1" then (select end_of_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") end as opening_balance,
-         case should_only_carry_forward 
-            when "0" then (select for_the_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") 
-            when "1" then (select for_the_month_debit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") 
-         end as debit,
-         case should_only_carry_forward 
-            when "0" then (select for_the_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") 
-            when "1" then (select for_the_month_credit_amount from sequence_data where sequence_id = sid and custom_year_month = "0") 
-         end as credit,
-         (select id from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '") as seq_data_id, false as can_be_edited FROM `sequence` 
-         where sequence.should_include_in_III_part = 1 and sequence.can_be_found_in_schedule = 0 order by allocation)';
+        $qr3 .= ' (select id from sequence_data where sequence_id = sid and custom_year_month = "' . $current_month_year_digit . '" and is_final = 0) as seq_data_id, true as can_be_edited FROM `sequence` 
+         where sequence.should_include_in_III_part = 1 and sequence.can_be_found_in_schedule = 1 order by allocation)';
         echo "<pre>";
         echo "Part III Query: \n";
         print_r($qr3);
@@ -674,7 +662,7 @@ if (!$is_final) {
             ]
         ];
         $activeCellNo++;
-
+        $start = $activeCellNo;
         foreach ($depData as $key => $value) {
 
             setValueStyle($sheet, 'A' . $activeCellNo, ($key + 1), true);
@@ -684,51 +672,51 @@ if (!$is_final) {
             setValueStyle($sheet, 'D' . $activeCellNo, isset($value['head_of_account']) ? $value['head_of_account'] : '-', true, 'left');
 
             $opening_balance = isset($value['opening_balance']) ? floatval($value['opening_balance']) : 0;
-            setValueStyle($sheet, 'E' . $activeCellNo, $opening_balance, true, 'right');
+            setValueStyle($sheet, 'E' . $activeCellNo, $opening_balance, false, 'right');
 
             $debit = isset($value['debit']) ? floatval($value['debit']) : 0;
-            setValueStyle($sheet, 'F' . $activeCellNo, $debit, true, 'right');
+            setValueStyle($sheet, 'F' . $activeCellNo, $debit, false, 'right');
 
             $credit = isset($value['credit']) ? floatval($value['credit']) : 0;
-            setValueStyle($sheet, 'G' . $activeCellNo, $credit, true, 'right');
+            setValueStyle($sheet, 'G' . $activeCellNo, $credit, false, 'right');
 
             $ending_balance = ((floatval($opening_balance) + floatval($debit)) - floatval($credit));
-            setValueStyle($sheet, 'H' . $activeCellNo, $ending_balance, true, 'right');
-            if ($value['can_be_edited']) {
+            setValueStyle($sheet, 'H' . $activeCellNo, $ending_balance, false, 'right');
+            // if ($value['can_be_edited']) {
 
                 $total['III']['opening_balance'] += $opening_balance;
                 $total['III']['debit'] += $debit;
                 $total['III']['credit'] += $credit;
                 $total['III']['ending_balance'] += $ending_balance;
-                if ($depData[$key + 1]['can_be_edited'] == false) {
-                    $activeCellNo++;
-                    $sheet->mergeCells('A' . $activeCellNo . ':D' . $activeCellNo);
-                    setValueStyle($sheet, 'A' . $activeCellNo, 'Total', false, 'center');
-                    setValueStyle($sheet, 'E' . $activeCellNo, $total['III']['opening_balance'], true, 'right');
-                    setValueStyle($sheet, 'F' . $activeCellNo, $total['III']['debit'], true, 'right');
-                    setValueStyle($sheet, 'G' . $activeCellNo, $total['III']['credit'], true, 'right');
-                    setValueStyle($sheet, 'H' . $activeCellNo, $total['III']['ending_balance'], true, 'right');
-                    $activeCellNo++;
-                    $sheet->mergeCells('A' . $activeCellNo . ':H' . $activeCellNo);
-                }
+            // if ($depData[$key + 1]['can_be_edited'] == false) {
+            //     $activeCellNo++;
+            //     $sheet->mergeCells('A' . $activeCellNo . ':D' . $activeCellNo);
+            //     setValueStyle($sheet, 'A' . $activeCellNo, 'Total', false, 'center');
+            //     setValueStyle($sheet, 'E' . $activeCellNo, $total['III']['opening_balance'], true, 'right');
+            //     setValueStyle($sheet, 'F' . $activeCellNo, $total['III']['debit'], true, 'right');
+            //     setValueStyle($sheet, 'G' . $activeCellNo, $total['III']['credit'], true, 'right');
+            //     setValueStyle($sheet, 'H' . $activeCellNo, $total['III']['ending_balance'], true, 'right');
+            //     $activeCellNo++;
+            //     $sheet->mergeCells('A' . $activeCellNo . ':H' . $activeCellNo);
+            // }
                 if ($value['seq_data_id'] && $value['can_be_edited']) {
-                    $q = "UPDATE `sequence_data` SET `end_of_month_credit_amount` = $ending_balance WHERE `id` =" . $value['seq_data_id'];
+                $q = "UPDATE `sequence_data` SET `end_of_month_debit_amount` = $ending_balance WHERE `id` =" . $value['seq_data_id'];
                     $ar = $conn->query($q);
                 }
-            } else {
-                $total['I']['opening_balance'] += $opening_balance;
-                $total['I']['debit'] += $debit;
-                $total['I']['credit'] += $credit;
-                $total['I']['ending_balance'] += $ending_balance;
-            }
+            // } else {
+            //     $total['I']['opening_balance'] += $opening_balance;
+            //     $total['I']['debit'] += $debit;
+            //     $total['I']['credit'] += $credit;
+            //     $total['I']['ending_balance'] += $ending_balance;
+            // }
             $activeCellNo++;
         }
         $sheet->mergeCells('A' . $activeCellNo . ':D' . $activeCellNo);
-        setValueStyle($sheet, 'A' . $activeCellNo, "Total", true, 'center');
-        setValueStyle($sheet, 'E' . $activeCellNo, $total['I']['opening_balance'], true, 'right');
-        setValueStyle($sheet, 'F' . $activeCellNo, $total['I']['debit'], true, 'right');
-        setValueStyle($sheet, 'G' . $activeCellNo, $total['I']['credit'], true, 'right');
-        setValueStyle($sheet, 'H' . $activeCellNo, $total['I']['ending_balance'], true, 'right');
+        setValueStyle($sheet, 'A' . $activeCellNo, "Total", false, 'center');
+        setValueStyle($sheet, 'E' . $activeCellNo,  '=SUM(E' . $start . ':E' . ($activeCellNo - 1) . ')', false, 'right');
+        setValueStyle($sheet, 'F' . $activeCellNo, '=SUM(F' . $start . ':F' . ($activeCellNo - 1) . ')', false, 'right');
+        setValueStyle($sheet, 'G' . $activeCellNo, '=SUM(G' . $start . ':G' . ($activeCellNo - 1) . ')', false, 'right');
+        setValueStyle($sheet, 'H' . $activeCellNo, '=SUM(H' . $start . ':H' . ($activeCellNo - 1) . ')', false, 'right');
     } catch (Exception $e) {
         //...
         printf("Error message while quering deposit data: %s\n", $conn->error);
