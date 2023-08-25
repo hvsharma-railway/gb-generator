@@ -243,7 +243,7 @@ function handleRevenueScheduleUpload() {
             };
             let demandsRecoverable = {
                 amount: 0,
-                counter: 2,
+                counter: 1,
                 text: "Demands Recoverable"
             };
             let grossTotal = {
@@ -301,17 +301,17 @@ function handleRevenueScheduleUpload() {
                     let amt = parseFloat($(this).find("td").eq(2).html());
                     if (misAdvRevOth.counter === 2) {
                         misAdvRevOth.amount = amt;
+                        // finalArrToBeSent.push({
+                        //     allocation: '12112101',
+                        //     debit: amt,
+                        //     credit: 0
+                        // })
+                    } else if (misAdvRevOth.counter === 1) {
                         finalArrToBeSent.push({
                             allocation: '12112101',
-                            debit: amt,
-                            credit: 0
-                        })
-                    } else if (misAdvRevOth.counter === 1) {
-                        // finalArrToBeSent.push({
-                        //   allocation: '12191254',
-                        //   debit: 0,
-                        //   credit: amt
-                        // });
+                            debit: misAdvRevOth.amount,
+                            credit: 0 // This is static 0 because misc rev other credit contains a whole lot of allocations, one of which is CUG Recovery Credit. We cannot interpret from Revenue schedule whether mis adv rev others contains the cug rec credit amount unless we have direct api access. Hence it's kept 0 as of now.
+                        });
                         misAdvRevOth.amount = misAdvRevOth.amount - amt;
                     }
                     misAdvRevOth.counter--;
@@ -348,30 +348,17 @@ function handleRevenueScheduleUpload() {
                     }
                     demandPayable.counter--;
                 }
-                // else if ($(this).find("td:first").html() === "DEMANDS RECOVERABLE<br>&nbsp;") {
-                //   let amt = parseFloat($(this).find("td").eq(1).text());
-                //   if (demandsRecoverable.counter === 2) {
-                //     demandsRecoverable.amount = amt;
-                //   } else if (demandsRecoverable.counter === 1) {
-                //     demandsRecoverable.amount = demandsRecoverable.amount - amt;
-                //   }
-                //   demandsRecoverable.counter--;
-                // }
                 else if ($(this).find("td:first").contents().eq(0).text() === "DEMANDS RECOVERABLE") {
-                    let amt = parseFloat($(this).find("td").eq(1).text());
-                    console.log(index, $(this).find("td").eq(1).text());
-                    if (demandsRecoverable.counter === 2) {
-                        demandsRecoverable.amount = amt;
-                    } else if (demandsRecoverable.counter === 1 && (index == 70 && $(this).find("td:first").contents().eq(0).text() === "DEMANDS RECOVERABLE")) {
-                        demandsRecoverable.amount = demandsRecoverable.amount - amt;
-                    } else if (demandsRecoverable.counter === 1) {
-                        demandsRecoverable.amount = demandsRecoverable.amount - 0;
+                    if (demandsRecoverable.counter == 1) {
+                        let credit = parseFloat($(this).find("td").eq(1).text());
+                        let debit = 0;
+                        if ($("#file-content-1 table tr").eq(index + 6).find("td").eq(0).text().trim() === "DEMANDS RECOVERABLE") {
+                            debit = $("#file-content-1 table tr").eq(index + 6).find("td").eq(1).text();
+                        }
+                        demandsRecoverable.amount = credit - debit;
+                        demandsRecoverable.counter--;
                     }
-                    demandsRecoverable.counter--;
                 }
-                // if (index == 70 && $(this).find("td:first").contents().eq(0).text() === "DEMANDS RECOVERABLE") {
-                //   console.log(index, index == 70 && $(this).find("td:first").contents().eq(0).text() === "DEMANDS RECOVERABLE", $(this).find("td").eq(1).text());
-                // }
                 else if ($(this).find("td:first").html() === "<b>TOTAL GROSS EARNINGS</b><br>&nbsp;") {
                     if (grossTotal.counter === 1) {
                         grossTotal.amount = parseFloat($(this).find("td").eq(1).text());
