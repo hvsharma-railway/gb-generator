@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: gb-generator-app
+    ports:
+      - "${APP_PORT:-8081}:80"
+    environment:
+      DB_HOST: db
+      DB_USER: gb_user
+      DB_PASSWORD: gb_pass
+      DB_NAME: gb_generator
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: gb-generator-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: gb_generator
+      MYSQL_USER: gb_user
+      MYSQL_PASSWORD: gb_pass
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: gb-generator-phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    ports:
+      - "${PHPMYADMIN_PORT:-8082}:80"
+
+volumes:
+  db_data:

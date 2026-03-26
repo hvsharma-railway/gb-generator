@@ -281,6 +281,7 @@ $grandTotal = [
     'end_of_the_month_debit_grand_total' => 0,
     'end_of_the_month_credit_grand_total' => 0,
 ];
+
 foreach ($seqData as $seq) {
     setValueStyle($sheet, "A" . $activeCellNo, $sr_no);
 
